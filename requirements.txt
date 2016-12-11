@@ -8,4 +8,5 @@ django-environ==0.4.1
 django==1.10.4
 psycopg2==2.6.2
 six==1.10.0               # via django-environ
+uwsgi==2.0.14
 whitenoise==3.2.2
