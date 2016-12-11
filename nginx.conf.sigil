@@ -1,0 +1,30 @@
+server {
+  listen      [::]:80;
+  listen      80;
+  server_name {{ .NOSSL_SERVER_NAME }};
+
+  access_log  /var/log/nginx/{{ .APP }}-access.log;
+  error_log   /var/log/nginx/{{ .APP }}-error.log;
+
+  keepalive_timeout   70;
+  client_max_body_size 20M;
+
+  location    / {
+    include uwsgi_params;
+    uwsgi_pass  {{ .APP }};
+    uwsgi_param Upgrade $http_upgrade;
+    uwsgi_param Connection "upgrade";
+    uwsgi_param Host $http_host;
+    uwsgi_param X-Forwarded-Proto $scheme;
+    uwsgi_param X-Forwarded-For $remote_addr;
+    uwsgi_param X-Forwarded-Port $server_port;
+    uwsgi_param X-Request-Start $msec;
+  }
+  include {{ .DOKKU_ROOT }}/{{ .APP }}/nginx.conf.d/*.conf;
+}
+
+upstream {{ .APP }} {
+{{ range .DOKKU_APP_LISTENERS | split " " }}
+  server {{ . }};
+{{ end }}
+}
