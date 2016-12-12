@@ -8,8 +8,8 @@
     {% for message in messages %}
       {{ message }}
     {% endfor %}
+    {{ channels|length }} channels
     <ul>
-      {{ channels|length }} channels
       {% for channel in channels %}
       <li><a href="{{ channel.url }}">{{ channel.title }}</a></li>
       {% endfor %}
@@ -19,5 +19,20 @@
       {% csrf_token %}
       <button>Refresh</button>
     </form>
+
+    <p>Changes since last refresh:</p>
+    Subscribed to:
+    <ul>
+      {% for channel in sub_log.subscriptions_added.all %}
+      <li><a href="{{ channel.url }}">{{ channel.title }}</a></li>
+      {% endfor %}
+    </ul>
+
+    Unsubscribed to:
+    <ul>
+      {% for channel in sub_log.subscriptions_removed.all %}
+      <li><a href="{{ channel.url }}">{{ channel.title }}</a></li>
+      {% endfor %}
+    </ul>
   </body>
 </html>

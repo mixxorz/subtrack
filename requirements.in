@@ -4,5 +4,6 @@ django-allauth
 django-environ
 psycopg2
 requests
+requests-oauthlib
 uwsgi
 whitenoise

@@ -11,7 +11,7 @@ django==1.10.4
 oauthlib==2.0.1           # via requests-oauthlib
 psycopg2==2.6.2
 python3-openid==3.0.10    # via django-allauth
-requests-oauthlib==0.7.0  # via django-allauth
+requests-oauthlib==0.7.0
 requests==2.12.3
 six==1.10.0               # via django-environ
 uwsgi==2.0.14

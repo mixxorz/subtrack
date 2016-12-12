@@ -17,3 +17,13 @@ class Subscription(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class SubscriptionLog(models.Model):
+    subscriptions_added = models.ManyToManyField('subs.Subscription',
+                                                 related_name='+')
+    subscriptions_removed = models.ManyToManyField('subs.Subscription',
+                                                   related_name='+')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             related_name='subscription_logs')
+    created_at = models.DateTimeField(auto_now_add=True)

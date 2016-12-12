@@ -1,11 +1,12 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.core.urlresolvers import reverse
+from django.db import transaction
 from django.shortcuts import redirect
 from django.views.generic import TemplateView, View
 import requests
 
-from .models import Subscription
+from .models import Subscription, SubscriptionLog
 
 
 class Error(Exception):
@@ -52,6 +53,7 @@ class SubscriptionListView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(SubscriptionListView, self).get_context_data(**kwargs)
         context['channels'] = self.request.user.subscriptions.all()
+        context['sub_log'] = self.request.user.subscription_logs.order_by('created_at').last()  # noqa
         return context
 
 
@@ -60,6 +62,7 @@ subscription_list_view = SubscriptionListView.as_view()
 
 class SubscriptionFetchView(LoginRequiredMixin, View):
 
+    @transaction.atomic
     def post(self, request):
         user = self.request.user
         provider = user.socialaccount_set.get(provider='google')
@@ -70,15 +73,38 @@ class SubscriptionFetchView(LoginRequiredMixin, View):
             messages.error(self.request, 'Error {}'.format(str(e)))
             return redirect(reverse('subs'))
 
+        current_subs = list(user.subscriptions.all())
+        fetched_subs = []
+        added_subs = []
+        removed_subs = []
+
         for channel in channels:
             sub, created = Subscription.objects.get_or_create(
                 id=channel['resourceId']['channelId'],
-                title=channel['title'],
-                extra_data=channel,
+                defaults={
+                    'title': channel['title'],
+                    'extra_data': channel,
+                },
             )
 
-            sub.users.add(user)
-            sub.save()
+            fetched_subs.append(sub)
+
+        for sub in fetched_subs:
+            if sub not in current_subs:
+                user.subscriptions.add(sub)
+                user.save()
+                added_subs.append(sub)
+
+        for sub in current_subs:
+            if sub not in fetched_subs:
+                user.subscriptions.remove(sub)
+                user.save()
+                removed_subs.append(sub)
+
+        sub_log = SubscriptionLog.objects.create(user=user)
+        sub_log.subscriptions_added.add(*added_subs)
+        sub_log.subscriptions_removed.add(*removed_subs)
+        sub_log.save()
 
         return redirect(reverse('subs'))
 
