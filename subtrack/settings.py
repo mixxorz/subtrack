@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 
 import os
 
+from django.conf import global_settings
 import environ
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -52,6 +53,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
+
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+
+    'apps.subs',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -113,6 +122,10 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',  # noqa
     },
+]
+
+AUTHENTICATION_BACKENDS = global_settings.AUTHENTICATION_BACKENDS + [
+    'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
 
@@ -178,5 +191,20 @@ LOGGING = {
             'handlers': ['console'],
             'level': 'WARN'
         },
+    }
+}
+
+SITE_ID = 1
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+            'https://www.googleapis.com/auth/youtube.readonly'
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online'
+        }
     }
 }
