@@ -5,10 +5,19 @@
     <title>Subscriptions</title>
   </head>
   <body>
+    {% for message in messages %}
+      {{ message }}
+    {% endfor %}
     <ul>
+      {{ channels|length }} channels
       {% for channel in channels %}
-      <li>{{ channel }}</li>
+      <li><a href="{{ channel.url }}">{{ channel.title }}</a></li>
       {% endfor %}
     </ul>
+
+    <form action="{% url 'fetch' %}" method="POST" accept-charset="utf-8">
+      {% csrf_token %}
+      <button>Refresh</button>
+    </form>
   </body>
 </html>

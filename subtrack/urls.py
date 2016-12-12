@@ -21,5 +21,6 @@ from apps.subs import views as subs_views
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^accounts/', include('allauth.urls')),
-    url(r'^subscriptions/', subs_views.subscriptions_view, name='subs'),
+    url(r'^subscriptions/$', subs_views.subscription_list_view, name='subs'),
+    url(r'^subscriptions/fetch/$', subs_views.subscription_fetch_view, name='fetch'),  # noqa
 ]
