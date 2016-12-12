@@ -27,3 +27,10 @@ class SubscriptionLog(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              related_name='subscription_logs')
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return '{}: {} added {} removed'.format(
+            self.user,
+            self.subscriptions_added.count(),
+            self.subscriptions_removed.count()
+        )
